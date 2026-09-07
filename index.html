@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Bombs or Dolls - Real-Time Mountain Battle</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="game">
+  <!-- Left Side: Player 1 (Blue) -->
+  <section class="side p1-panel">
+    <div class="player-header">
+      <div class="title p1-color">Player 1</div>
+      <span class="player-badge p1-badge">Blue Team</span>
+    </div>
+
+    <div class="mana-container">
+      <div class="mana-info">
+        <span>⚡ Mana</span>
+        <div><span id="m1t" class="mana-val">4.0</span> / 10</div>
+      </div>
+      <div class="bar"><div id="m1" class="fill p1fill"></div></div>
+    </div>
+
+    <div class="section-label">Your Cards</div>
+    <div id="cards-p1" class="cards"></div>
+  </section>
+
+  <!-- Center: Mountain Arena -->
+  <main class="arenaWrap">
+    <div class="top-bar">
+      <div class="game-title">
+        <span>⛰️</span>
+        <span>Bombs or Dolls</span>
+      </div>
+      <div id="game-timer" class="game-timer">⏱️ 00:00</div>
+    </div>
+
+    <div id="arena-container">
+      <div id="arena">
+        <div id="grid" class="grid"></div>
+        <div id="fx-layer" class="fx-layer"></div>
+      </div>
+    </div>
+
+    <div id="status" class="status">Loading battle arena...</div>
+
+    <div class="controls-row">
+      <button id="btn-reset" class="btn">🔄 Reset</button>
+      <button id="btn-pause" class="btn">⏸ Pause</button>
+      <button id="btn-ai" class="btn" title="Toggle AI Bot if testing solo">👥 2-Player Local (Bot: OFF)</button>
+    </div>
+
+    <div class="hint-bar">
+      Real-Time 2-Player • Peak at Top • Both players climb from bottom • Bombs strike anywhere
+    </div>
+  </main>
+
+  <!-- Right Side: Player 2 (Red) -->
+  <section class="side p2-panel right">
+    <div class="player-header">
+      <div class="title p2-color">Player 2</div>
+      <span class="player-badge p2-badge">Red Team</span>
+    </div>
+
+    <div class="mana-container">
+      <div class="mana-info">
+        <span>⚡ Mana</span>
+        <div><span id="m2t" class="mana-val">4.0</span> / 10</div>
+      </div>
+      <div class="bar"><div id="m2" class="fill p2fill"></div></div>
+    </div>
+
+    <div class="section-label">Cards</div>
+    <div id="cards-p2" class="cards"></div>
+  </section>
+</div>
+
+<!-- Victory Modal -->
+<div id="victory-modal" class="modal-overlay">
+  <div class="modal-card">
+    <div id="victory-trophy" class="victory-trophy">🏆</div>
+    <div id="victory-title" class="victory-title">Player 1 Victorious!</div>
+    <div id="victory-desc" class="victory-desc">A Small Hiker reached the Peak first!</div>
+    <button id="btn-play-again" class="btn btn-primary" style="padding: 10px 24px; font-size: 14px;">
+      Play Again
+    </button>
+  </div>
+</div>
+
+<!-- Modular Architecture Scripts -->
+<!-- 1. Configuration & Unit Stats -->
+<script src="js/config.js"></script>
+<!-- 2. State Management & Entity Storage -->
+<script src="js/state.js"></script>
+<!-- 3. Hiker Logic (Climbing, Attack, Heal, Sumo Blocker) -->
+<script src="js/units.js"></script>
+<!-- 4. Bomb Logic (Instant, Timer, Area, Shock) -->
+<script src="js/bombs.js"></script>
+<!-- 5. Arena Grid & Visual FX -->
+<script src="js/arena.js"></script>
+<!-- 6. AI Opponent (for Solo play / testing) -->
+<script src="js/ai.js"></script>
+<!-- 7. Game Engine Loop & UI Binding -->
+<script src="js/game.js"></script>
+
+</body>
+</html>

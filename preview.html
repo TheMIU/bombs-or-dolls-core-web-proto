@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Bombs or Dolls - Layout Prototype</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial,sans-serif;background:#f7f7f7;color:#171717}
+#game{width:100%;height:100%;display:grid;grid-template-columns:minmax(220px,1fr) minmax(400px,560px) minmax(220px,1fr);gap:22px;padding:24px 30px}
+.side{display:flex;flex-direction:column;justify-content:center}.title{font-size:30px;font-weight:700;margin-bottom:12px}.right{text-align:right}
+.mana{font-weight:700;font-size:14px;margin-bottom:7px}.bar{height:9px;background:#ddd;border-radius:9px;overflow:hidden;margin-bottom:18px}.fill{height:100%;width:100%}.p1fill{background:#42b9c4}.p2fill{background:#ef7777}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.card{height:145px;background:#fff;border:2px solid #222;border-radius:6px;padding:8px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;touch-action:manipulation;transition:.12s}.card:hover{transform:translateY(-3px)}.card.selected{border-width:4px;box-shadow:0 0 0 3px #fff,0 0 0 6px #111}.card.disabled{opacity:.35;cursor:not-allowed}.icon{font-size:38px}.name{font-weight:700;font-size:13px;text-align:center}.cost{font-size:11px;color:#666}
+.arenaWrap{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center}.turn{font-size:18px;font-weight:700;margin-bottom:10px}
+#arena{width:100%;aspect-ratio:9/15;position:relative;background:#fff;border:1px solid #222;box-shadow:0 8px 30px #0001;overflow:hidden;touch-action:manipulation}.grid{position:absolute;inset:0;display:grid;grid-template-columns:repeat(9,1fr);grid-template-rows:repeat(15,1fr)}
+.cell{border:1px solid #5558;position:relative;cursor:pointer}.cell.p1area{background:#b9f2f5}.cell.p2area{background:#ffc7c7}.cell.peak{background:#555}.cell.far{background:#ffe1a5}.cell.hl{outline:3px solid #111;outline-offset:-3px;filter:brightness(.9)}
+.unit{position:absolute;inset:5%;z-index:4;display:flex;align-items:center;justify-content:center;font-size:clamp(17px,3vw,30px);pointer-events:none;text-shadow:0 1px white}.hp{position:absolute;bottom:0;font:700 9px Arial;background:#fff;border:1px solid #222;border-radius:3px;padding:1px 3px}.bomb{opacity:.9}
+.status{font-size:13px;text-align:center;color:#555;min-height:38px;margin-top:9px}.buttons{display:flex;gap:8px}.buttons button{border:1px solid #222;background:#fff;border-radius:5px;padding:7px 12px;font-weight:700;cursor:pointer}.hint{font-size:11px;color:#777;text-align:center;margin-top:7px}
+@media(max-width:900px){html,body{overflow:auto}#game{height:auto;min-height:100%;grid-template-columns:1fr;grid-template-rows:auto auto auto;padding:14px}.arenaWrap{order:0}.side{order:1}.right{order:2}.title{font-size:22px}.card{height:105px}.icon{font-size:30px}#arena{width:min(88vw,500px)}}
+</style>
+</head>
+<body>
+<div id="game">
+<section class="side">
+<div class="title">Player 1</div>
+<div class="mana">Mana <span id="m1t">10</span> / 10</div><div class="bar"><div id="m1" class="fill p1fill"></div></div>
+<div id="c1" class="cards"></div>
+</section>
+
+<main class="arenaWrap">
+<div id="turn" class="turn">Player 1's turn</div>
+<div id="arena"><div id="grid" class="grid"></div></div>
+<div id="status" class="status">Select a card, then click a valid mountain cell.</div>
+<div class="buttons"><button id="reset">Reset</button><button id="skip">Skip Turn</button></div>
+<div class="hint">Direct placement • hikers climb immediately • bombs can reach the far zone</div>
+</main>
+
+<section class="side right">
+<div class="title">Player 2</div>
+<div class="mana">Mana <span id="m2t">10</span> / 10</div><div class="bar"><div id="m2" class="fill p2fill"></div></div>
+<div id="c2" class="cards"></div>
+</section>
+</div>
+
+<script>
+const C=9,R=15,peak=0;
+const types=[
+{id:"instant",name:"Instant Kill",icon:"💣",cost:3,kind:"bomb"},
+{id:"timer",name:"Timer Bomb",icon:"⏱️",cost:2,kind:"bomb"},
+{id:"area",name:"Area Bomb",icon:"💥",cost:3,kind:"bomb"},
+{id:"shock",name:"Shock Bomb",icon:"⚡",cost:2,kind:"bomb"},
+{id:"small",name:"Small Hiker",icon:"🏃",cost:2,kind:"hiker",hp:40,speed:2},
+{id:"sumo",name:"Sumo Hiker",icon:"🗿",cost:3,kind:"hiker",hp:100,speed:1},
+{id:"attack",name:"Attack Hiker",icon:"⚔️",cost:3,kind:"hiker",hp:65,speed:1},
+{id:"doctor",name:"Doctor Hiker",icon:"❤️",cost:3,kind:"hiker",hp:45,speed:1}
+];
+let s={turn:1,mana:[10,10],selected:null,units:[],bombs:[],id:0,over:false};
+const grid=document.getElementById("grid"),status=document.getElementById("status");
+const idx=(x,y)=>y*C+x;
+function makeGrid(){
+grid.innerHTML="";
+for(let y=0;y<R;y++)for(let x=0;x<C;x++){
+let e=document.createElement("div");e.className="cell "+(y===0?"peak":y===1?"far":y>=8?"p1area":"p2area");e.dataset.x=x;e.dataset.y=y;e.onclick=()=>place(x,y);grid.appendChild(e);
+}}
+function cards(){
+for(let p=1;p<=2;p++){
+let box=document.getElementById("c"+p);box.innerHTML="";
+types.forEach(t=>{
+let e=document.createElement("div");e.className="card "+(s.selected&&s.selected.p===p&&s.selected.t.id===t.id?"selected":"")+(s.mana[p-1]<t.cost?" disabled":"");
+e.innerHTML="<div class='icon'>"+t.icon+"</div><div class='name'>"+t.name+"</div><div class='cost'>"+t.cost+" mana</div>";
+e.onclick=()=>{if(s.turn!==p)return;if(s.mana[p-1]<t.cost){status.textContent="Not enough mana.";return}s.selected={p,t};status.textContent=t.name+" selected — click a valid cell.";cards();highlight()};
+box.appendChild(e)
+});
+document.getElementById("m"+p+"t").textContent=s.mana[p-1];document.getElementById("m"+p).style.width=(s.mana[p-1]*10)+"%";
+}}
+function highlight(){document.querySelectorAll(".cell").forEach(e=>e.classList.remove("hl"));if(!s.selected)return;let p=s.selected.p,t=s.selected.t;document.querySelectorAll(".cell").forEach(e=>{let y=+e.dataset.y;if(t.kind==="bomb"||(p===1?y>=7:y<=7))e.classList.add("hl")})}
+function occupied(x,y){return s.units.some(u=>u.x===x&&u.y===y)||s.bombs.some(b=>b.x===x&&b.y===y)}
+function place(x,y){
+if(s.over)return;if(!s.selected){status.textContent="Choose a card first.";return}
+let {p,t}=s.selected;if(p!==s.turn)return;
+let valid=t.kind==="bomb"||(p===1?y>=7:y<=7);if(!valid){status.textContent="That hiker cannot be placed there.";return}
+if(occupied(x,y)){status.textContent="That cell is occupied.";return}
+s.mana[p-1]-=t.cost;
+if(t.kind==="hiker"){s.units.push({id:++s.id,p,x,y,type:t.id,hp:t.hp,speed:t.speed,stun:0});setTimeout(()=>climb(p),180)}
+else{s.bombs.push({id:++s.id,p,x,y,type:t.id,timer:t.id==="timer"?2:0});setTimeout(()=>bombAction(s.bombs.find(b=>b.id===s.id)),180)}
+s.selected=null;cards();highlight();render();setTimeout(endTurn,420)
+}
+function climb(p){
+s.units.filter(u=>u.p===p).forEach(u=>{
+if(u.stun){u.stun--;return}
+for(let i=0;i<u.speed;i++){let ny=u.y+(p===1?-1:1);if(ny<0||ny>=R)break;if(s.units.some(v=>v.id!==u.id&&v.x===u.x&&v.y===ny))break;u.y=ny}
+if(u.type==="attack")s.units.filter(v=>v.p!==p&&Math.abs(v.x-u.x)<=1&&Math.abs(v.y-u.y)<=1).forEach(v=>v.hp-=18)
+});
+s.units=s.units.filter(u=>u.hp>0);check();render()
+}
+function bombAction(b){
+if(!b)return;
+if(b.type==="timer"&&b.timer>0){b.timer--;return}
+s.bombs=s.bombs.filter(x=>x.id!==b.id);
+if(b.type==="instant")s.units=s.units.filter(u=>!(u.p!==b.p&&u.x===b.x&&u.y===b.y));
+if(b.type==="area")s.units=s.units.filter(u=>!(u.p!==b.p&&Math.abs(u.x-b.x)<=1&&Math.abs(u.y-b.y)<=1));
+if(b.type==="shock")s.units.forEach(u=>{if(u.p!==b.p&&Math.abs(u.x-b.x)<=1&&Math.abs(u.y-b.y)<=1)u.stun=2});
+check();render()
+}
+function endTurn(){
+if(s.over)return;
+s.bombs.slice().forEach(b=>{if(b.timer>0){b.timer--;if(b.timer===0)setTimeout(()=>bombAction(b),100)}});
+s.turn=s.turn===1?2:1;s.mana[s.turn-1]=Math.min(10,s.mana[s.turn-1]+1);
+document.getElementById("turn").textContent="Player "+s.turn+"'s turn";status.textContent="Select a card, then click a valid mountain cell.";cards();highlight()
+}
+function check(){
+let a=s.units.some(u=>u.p===1&&u.y===0),b=s.units.some(u=>u.p===2&&u.y===0);
+if(a||b){s.over=true;status.textContent="🏆 Player "+(a?1:2)+" reached the peak first!"}
+}
+function render(){
+document.querySelectorAll(".unit").forEach(e=>e.remove());
+s.units.forEach(u=>{let e=document.createElement("div");e.className="unit";e.textContent=types.find(t=>t.id===u.type).icon;if(u.stun)e.style.opacity=".4";let hp=document.createElement("span");hp.className="hp";hp.textContent=u.hp;e.appendChild(hp);grid.children[idx(u.x,u.y)].appendChild(e)});
+s.bombs.forEach(b=>{let e=document.createElement("div");e.className="unit bomb";e.textContent=types.find(t=>t.id===b.type).icon;grid.children[idx(b.x,b.y)].appendChild(e)})
+}
+function reset(){s={turn:1,mana:[10,10],selected:null,units:[],bombs:[],id:0,over:false};document.getElementById("turn").textContent="Player 1's turn";status.textContent="Select a card, then click a valid mountain cell.";makeGrid();cards();render();highlight()}
+document.getElementById("reset").onclick=reset;document.getElementById("skip").onclick=()=>{if(!s.over){s.selected=null;endTurn()}};
+makeGrid();cards();render();
+</script>
+</body>
+</html>
