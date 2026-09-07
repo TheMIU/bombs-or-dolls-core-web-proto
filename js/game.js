@@ -68,8 +68,12 @@ window.GameSystem = {
         cardEl.dataset.cardId = card.id;
         cardEl.dataset.player = p;
 
+        const spriteSvg = card.kind === "hiker"
+          ? window.Sprites.getHiker(card.id, p)
+          : window.Sprites.getBomb(card.id, p);
+
         cardEl.innerHTML = `
-          <div class="card-icon">${card.icon}</div>
+          <div class="card-icon">${spriteSvg}</div>
           <div class="card-name">${card.name}</div>
           <div class="card-footer">
             <span class="card-cost">${card.cost}⚡</span>
@@ -125,13 +129,9 @@ window.GameSystem = {
     // Cannot place directly on the peak (Row 0)
     if (y === arena.peakRow) return false;
 
-    // 1. Hikers can only be placed in player's base camp at the bottom (Rows 12-14)
+    // 1. Hikers can be placed anywhere in the single unified bottom base camp (Rows 12-14)
     if (card.kind === "hiker") {
-      const deployRows = player === 1 ? arena.p1DeployRows : arena.p2DeployRows;
-      const deployCols = player === 1 ? arena.p1DeployCols : arena.p2DeployCols;
-
-      if (!deployRows.includes(y)) return false;
-      if (deployCols && !deployCols.includes(x)) return false;
+      if (!arena.deployRows.includes(y)) return false;
 
       // Cell cannot already have a friendly unit
       const existing = window.GameState.getUnitAt(x, y);

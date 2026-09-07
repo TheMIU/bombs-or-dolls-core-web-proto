@@ -4,10 +4,7 @@
  * Layout:
  * - Row 0: The Mountain Peak (Summit)
  * - Rows 1-11: Mountain slopes (neutral climbing path)
- * - Rows 12-14: Base Camps
- *   - Cols 0-3: Player 1 Base (Blue)
- *   - Col 4: Shared Center Lane
- *   - Cols 5-8: Player 2 Base (Red)
+ * - Rows 12-14: Single unified Base Camp deployment area for all characters
  */
 
 window.ArenaRenderer = {
@@ -21,7 +18,7 @@ window.ArenaRenderer = {
   },
 
   /**
-   * Build the 9x15 grid cells with proper zone classes
+   * Build the 9x15 grid cells with unified bottom deployment area
    */
   rebuildGrid() {
     if (!this.gridEl) return;
@@ -42,15 +39,9 @@ window.ArenaRenderer = {
           cell.classList.add("peak");
           if (x === 4) cell.classList.add("peak-summit");
         } 
-        // Bottom Base Camp (Rows 12-14)
-        else if (arena.p1DeployRows.includes(y)) {
-          if (arena.p1DeployCols.includes(x) && !arena.p2DeployCols.includes(x)) {
-            cell.classList.add("p1area");
-          } else if (arena.p2DeployCols.includes(x) && !arena.p1DeployCols.includes(x)) {
-            cell.classList.add("p2area");
-          } else {
-            cell.classList.add("sharedarea");
-          }
+        // Bottom Base Camp - Single unified area for all characters (Rows 12-14)
+        else if (arena.deployRows.includes(y)) {
+          cell.classList.add("deployarea");
         } 
         // Mountain climbing slopes (Rows 1-11)
         else {
@@ -89,7 +80,7 @@ window.ArenaRenderer = {
   },
 
   /**
-   * Full DOM render of all entities (units, bombs, health bars)
+   * Full DOM render of all entities using custom cartoon stickfigure & bomb vector sprites
    */
   renderEntities() {
     // Clear old unit/bomb DOM elements
@@ -98,7 +89,7 @@ window.ArenaRenderer = {
     const { COLS } = window.GameConfig.GRID;
     const getCellEl = (x, y) => this.gridEl.children[y * COLS + x];
 
-    // 1. Render Units
+    // 1. Render Units with Cartoon Stickfigure Vector Sprites
     window.GameState.units.forEach(unit => {
       const cellEl = getCellEl(unit.x, unit.y);
       if (!cellEl) return;
@@ -107,11 +98,11 @@ window.ArenaRenderer = {
       node.className = `unit-node ${unit.player === 1 ? "p1-unit" : "p2-unit"}`;
       if (unit.stunTimer > 0) node.classList.add("stunned");
 
-      // Emoji Sprite
-      const sprite = document.createElement("div");
-      sprite.className = "unit-sprite";
-      sprite.textContent = unit.card.icon;
-      node.appendChild(sprite);
+      // Stickfigure SVG Sprite
+      const spriteContainer = document.createElement("div");
+      spriteContainer.className = "unit-sprite-box";
+      spriteContainer.innerHTML = window.Sprites.getHiker(unit.card.id, unit.player, { stunned: unit.stunTimer > 0 });
+      node.appendChild(spriteContainer);
 
       // Health bar
       const hpBar = document.createElement("div");
@@ -130,7 +121,7 @@ window.ArenaRenderer = {
       cellEl.appendChild(node);
     });
 
-    // 2. Render Bombs
+    // 2. Render Bombs with Cartoon Weapon Sprites
     window.GameState.bombs.forEach(bomb => {
       const cellEl = getCellEl(bomb.x, bomb.y);
       if (!cellEl) return;
@@ -138,10 +129,10 @@ window.ArenaRenderer = {
       const node = document.createElement("div");
       node.className = "bomb-node";
 
-      const sprite = document.createElement("div");
-      sprite.className = "bomb-sprite";
-      sprite.textContent = bomb.card.icon;
-      node.appendChild(sprite);
+      const spriteContainer = document.createElement("div");
+      spriteContainer.className = "bomb-sprite-box";
+      spriteContainer.innerHTML = window.Sprites.getBomb(bomb.card.id, bomb.player);
+      node.appendChild(spriteContainer);
 
       // Fuse countdown badge for timer bomb
       if (bomb.card.id === "timer" && bomb.fuseTimer > 0) {

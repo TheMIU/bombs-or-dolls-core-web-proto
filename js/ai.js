@@ -65,8 +65,9 @@ window.AISystem = {
       const card = window.GameConfig.CARDS.find(c => c.id === chosenCardId && c.cost <= p2Mana);
       if (card) {
         const validCells = [];
-        for (let y of arena.p2DeployRows) {
-          for (let x of arena.p2DeployCols) {
+        const { COLS } = window.GameConfig.GRID;
+        for (let y of arena.deployRows) {
+          for (let x = 0; x < COLS; x++) {
             if (window.GameSystem.isValidPlacement(2, card, x, y)) {
               validCells.push({ x, y });
             }

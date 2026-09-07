@@ -172,8 +172,18 @@ html, body {
 }
 
 .card-icon {
-  font-size: 26px;
-  line-height: 1;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2px;
+}
+
+.sprite-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .card-name {
@@ -309,19 +319,9 @@ html, body {
   opacity: 1;
 }
 
-.cell.p1area {
-  background: rgba(224, 242, 254, 0.65);
-  border-top: 1px dashed rgba(2, 132, 199, 0.4);
-}
-
-.cell.p2area {
-  background: rgba(254, 226, 226, 0.65);
-  border-top: 1px dashed rgba(225, 29, 72, 0.4);
-}
-
-.cell.sharedarea {
-  background: rgba(243, 244, 246, 0.85);
-  border-top: 1px dashed rgba(156, 163, 175, 0.5);
+.cell.deployarea {
+  background: linear-gradient(180deg, rgba(238, 242, 255, 0.6) 0%, rgba(224, 231, 255, 0.8) 100%);
+  border-top: 1px dashed #6366f1;
 }
 
 .cell.neutral {
@@ -356,17 +356,19 @@ html, body {
   transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.unit-node.p1-unit .unit-sprite {
-  filter: drop-shadow(0 2px 4px rgba(2, 132, 199, 0.5));
-}
-.unit-node.p2-unit .unit-sprite {
-  filter: drop-shadow(0 2px 4px rgba(225, 29, 72, 0.5));
+.unit-sprite-box {
+  width: 82%;
+  height: 74%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.unit-sprite {
-  font-size: clamp(16px, 2.4vw, 24px);
-  line-height: 1;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+.unit-node.p1-unit .unit-sprite-box {
+  filter: drop-shadow(0 2px 4px rgba(2, 132, 199, 0.45));
+}
+.unit-node.p2-unit .unit-sprite-box {
+  filter: drop-shadow(0 2px 4px rgba(225, 29, 72, 0.45));
 }
 
 .unit-node.stunned {
@@ -409,10 +411,12 @@ html, body {
   pointer-events: none;
 }
 
-.bomb-sprite {
-  font-size: clamp(18px, 2.6vw, 26px);
-  line-height: 1;
-  filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3));
+.bomb-sprite-box {
+  width: 82%;
+  height: 74%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .bomb-fuse-text {
