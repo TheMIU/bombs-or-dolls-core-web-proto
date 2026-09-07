@@ -18,7 +18,7 @@ window.AISystem = {
     if (this.actionCooldown > 0) return;
 
     const p2Mana = window.GameState.mana[1];
-    if (p2Mana < 2) return;
+    if (p2Mana < 3) return; // Need at least 3 mana for Small Hiker
 
     const arena = window.GameConfig.ARENA;
     const p1Units = window.GameState.units.filter(u => u.player === 1);
@@ -27,38 +27,38 @@ window.AISystem = {
     // 1. TACTICAL DEFENSE: Is any P1 hiker dangerously close to row 0 peak?
     const dangerousEnemy = p1Units.find(u => u.y <= 4); // Near the summit!
 
-    if (dangerousEnemy && p2Mana >= 3) {
-      const bombCard = window.GameConfig.CARDS.find(c => c.id === (p2Mana >= 3 ? "instant" : "shock"));
+    if (dangerousEnemy && p2Mana >= 4) {
+      const bombCard = window.GameConfig.CARDS.find(c => c.id === (p2Mana >= 6 ? "instant" : "shock"));
       if (bombCard && window.GameSystem.isValidPlacement(2, bombCard, dangerousEnemy.x, dangerousEnemy.y)) {
         window.GameSystem.executePlacement(2, bombCard, dangerousEnemy.x, dangerousEnemy.y);
-        this.actionCooldown = 1.8;
+        this.actionCooldown = 2.0;
         return;
       }
     }
 
     // 2. OFFENSIVE BOMBS: Check for clumped enemy hikers
-    if (p2Mana >= 3 && p1Units.length >= 2) {
+    if (p2Mana >= 4 && p1Units.length >= 2) {
       for (let enemy of p1Units) {
         const cluster = window.GameState.getUnitsInRadius(enemy.x, enemy.y, 1).filter(u => u.player === 1);
         if (cluster.length >= 2) {
-          const areaBomb = window.GameConfig.CARDS.find(c => c.id === "area" || c.id === "shock");
+          const areaBomb = window.GameConfig.CARDS.find(c => c.id === (p2Mana >= 5 ? "area" : "shock"));
           if (areaBomb && window.GameSystem.isValidPlacement(2, areaBomb, enemy.x, enemy.y)) {
             window.GameSystem.executePlacement(2, areaBomb, enemy.x, enemy.y);
-            this.actionCooldown = 2.0;
+            this.actionCooldown = 2.2;
             return;
           }
         }
       }
     }
 
-    // 3. DEPLOY HIKERS AT BASE CAMP (Rows 12-14, Cols 4-8)
-    if (p2Mana >= 2) {
+    // 3. DEPLOY HIKERS AT BASE CAMP
+    if (p2Mana >= 3) {
       let chosenCardId = "small";
-      if (p2Units.length === 0 && p2Mana >= 3) {
+      if (p2Units.length === 0 && p2Mana >= 5) {
         chosenCardId = "attack";
-      } else if (p2Units.some(u => u.hp < u.maxHp * 0.7) && p2Mana >= 3) {
+      } else if (p2Units.some(u => u.hp < u.maxHp * 0.7) && p2Mana >= 5) {
         chosenCardId = "doctor";
-      } else if (p1Units.length > p2Units.length && p2Mana >= 3) {
+      } else if (p1Units.length > p2Units.length && p2Mana >= 6) {
         chosenCardId = "sumo";
       }
 
