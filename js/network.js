@@ -84,11 +84,12 @@ window.Network = {
           window.GameSystem.updateCardStyles();
           window.GameSystem.updateStatus("Player 2 joined! You are Player 1 (Blue). Place cards to battle!");
 
-          // Send welcome packet assigning Player 2 and sending custom config
+          // Send welcome packet assigning Player 2 and sending custom config & flags
           this.send({
             type: "WELCOME",
             assignedPlayer: 2,
             mana: window.GameState.mana,
+            flags: window.GameState.flags,
             config: {
               startMana: window.GameConfig.MANA.START,
               regenRate: window.GameConfig.MANA.REGEN_PER_SECOND,
@@ -208,6 +209,10 @@ window.Network = {
         this.isOnline = true;
         this.myPlayer = msg.assignedPlayer || 2;
         this.updateStatusUI(`🟢 Connected to Host! (You: Red Team)`, "connected");
+        if (msg.flags) {
+          window.GameState.flags = msg.flags;
+          window.ArenaRenderer.updateSummitFlagsUI();
+        }
         if (msg.config) {
           window.GameConfig.applySettings(msg.config, false);
           window.GameSystem.renderCardsUI();
@@ -235,6 +240,10 @@ window.Network = {
         }
         break;
 
+      case "FLAG_CLAIM":
+        window.GameSystem.claimSummitFlag(msg.player, null, true, msg.flagIdx);
+        break;
+
       case "START_MATCH":
         window.GameSystem.startMatch(true);
         break;
@@ -249,10 +258,14 @@ window.Network = {
         break;
 
       case "SYNC":
-        // Sync match time & mana periodically from host
+        // Sync match time, mana & flags periodically from host
         if (!this.isHost && msg.mana) {
           window.GameState.mana = msg.mana;
           window.GameState.matchTimeSec = msg.matchTimeSec;
+          if (msg.flags) {
+            window.GameState.flags = msg.flags;
+            window.ArenaRenderer.updateSummitFlagsUI();
+          }
           if (msg.isStarted !== undefined && msg.isStarted !== window.GameState.isStarted) {
             if (msg.isStarted) {
               window.GameSystem.startMatch(true);
@@ -265,8 +278,7 @@ window.Network = {
 
       case "VICTORY":
         if (!window.GameState.isGameOver) {
-          const hiker = window.GameState.units.find(u => u.id === msg.hikerId) || { card: { name: "Hiker" } };
-          window.GameSystem.triggerVictory(msg.winner, hiker, true);
+          window.GameSystem.triggerSummitCompletion(msg.winner, msg.p1Count || 0, msg.p2Count || 0, true);
         }
         break;
     }
@@ -280,7 +292,7 @@ window.Network = {
       try {
         this.conn.send(data);
       } catch (e) {
-        console.error("Failed to send packet:", e);
+        console.error("Network send failed:", e);
       }
     }
   },
@@ -315,7 +327,8 @@ window.Network = {
             parseFloat(window.GameState.mana[1].toFixed(2))
           ],
           matchTimeSec: window.GameState.matchTimeSec,
-          isStarted: window.GameState.isStarted
+          isStarted: window.GameState.isStarted,
+          flags: window.GameState.flags
         });
       }
     }, 2000);

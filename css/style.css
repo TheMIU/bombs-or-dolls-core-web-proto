@@ -366,22 +366,116 @@ html, body {
   color: rgba(99, 102, 241, 0.5);
 }
 
-/* Zone colors */
+/* ================= 8 Summit Flags Progress Bar ================= */
+.summit-flags-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 440px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  padding: 3px 14px;
+  margin: 1px 0 6px 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.flag-team-score {
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.p1-score { color: #0284c7; }
+.p2-score { color: #e11d48; }
+
+.team-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.p1-dot { background: #0284c7; box-shadow: 0 0 5px #38bdf8; }
+.p2-dot { background: #e11d48; box-shadow: 0 0 5px #f43f5e; }
+
+.flags-track {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.track-flag {
+  font-size: 14px;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+}
+
+.track-flag.flag-neutral {
+  opacity: 0.4;
+  filter: grayscale(1);
+}
+
+.track-flag.flag-blue {
+  filter: drop-shadow(0 0 4px #0284c7) hue-rotate(185deg);
+  transform: scale(1.2);
+}
+
+.track-flag.flag-red {
+  filter: drop-shadow(0 0 4px #e11d48);
+  transform: scale(1.2);
+}
+
+/* Zone colors & Peak Flags */
 .cell.peak {
   background: linear-gradient(180deg, #fef08a 0%, #fde047 100%) !important;
   border-bottom: 2px solid #ca8a04;
 }
-.cell.peak::after {
-  content: "🚩";
+
+.cell-flag {
   position: absolute;
   font-size: 13px;
-  opacity: 0.75;
   pointer-events: none;
+  user-select: none;
+  transition: all 0.25s ease;
+  z-index: 3;
 }
-.cell.peak-summit::after {
-  content: "🏆";
-  font-size: 15px;
+
+.cell-flag.neutral-flag {
+  opacity: 0.5;
+  filter: grayscale(1);
+}
+
+.cell.flag-p1 {
+  background: linear-gradient(180deg, #e0f2fe 0%, #bae6fd 100%) !important;
+  border-bottom: 2px solid #0284c7 !important;
+}
+
+.cell.flag-p1 .cell-flag {
+  filter: drop-shadow(0 0 4px #0284c7) hue-rotate(185deg);
   opacity: 1;
+  transform: scale(1.18);
+}
+
+.cell.flag-p2 {
+  background: linear-gradient(180deg, #ffe4e6 0%, #fecdd3 100%) !important;
+  border-bottom: 2px solid #e11d48 !important;
+}
+
+.cell.flag-p2 .cell-flag {
+  filter: drop-shadow(0 0 4px #e11d48);
+  opacity: 1;
+  transform: scale(1.18);
+}
+
+.cell-flag.summit-trophy {
+  font-size: 14px;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.25));
 }
 
 .cell.deployarea {

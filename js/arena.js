@@ -46,7 +46,21 @@ window.ArenaRenderer = {
         // Peak row (Top: Row 0)
         if (y === arena.peakRow) {
           cell.classList.add("peak");
-          if (x === 4) cell.classList.add("peak-summit");
+          if (x === 4) {
+            cell.classList.add("peak-summit");
+            const trophyEl = document.createElement("span");
+            trophyEl.className = "cell-flag summit-trophy";
+            trophyEl.textContent = "🏆";
+            cell.appendChild(trophyEl);
+          } else {
+            const flagCols = [0, 1, 2, 3, 5, 6, 7, 8];
+            const slotIdx = flagCols.indexOf(x);
+            cell.dataset.flagSlot = slotIdx;
+            const flagEl = document.createElement("span");
+            flagEl.className = "cell-flag neutral-flag";
+            flagEl.textContent = "🏳️";
+            cell.appendChild(flagEl);
+          }
         } 
         // Bottom Base Camp - Single unified area for all characters (Rows 12-14)
         else if (arena.deployRows.includes(y)) {
@@ -65,6 +79,70 @@ window.ArenaRenderer = {
         this.gridEl.appendChild(cell);
       }
     }
+
+    this.updateSummitFlagsUI();
+  },
+
+  /**
+   * Update the 8 summit flags on row 0 and the top HUD progress track
+   */
+  updateSummitFlagsUI() {
+    const flags = window.GameState.flags || [0, 0, 0, 0, 0, 0, 0, 0];
+    const flagCols = [0, 1, 2, 3, 5, 6, 7, 8];
+
+    // 1. Update row 0 cells on the arena grid
+    if (this.gridEl) {
+      flagCols.forEach((colX, slotIdx) => {
+        const cell = this.gridEl.querySelector(`.cell[data-x="${colX}"][data-y="0"]`);
+        if (!cell) return;
+
+        const flagVal = flags[slotIdx]; // 0 = neutral, 1 = Blue (P1), 2 = Red (P2)
+        cell.classList.remove("flag-neutral", "flag-p1", "flag-p2");
+
+        const flagEl = cell.querySelector(".cell-flag");
+        if (flagVal === 1) {
+          cell.classList.add("flag-p1");
+          if (flagEl) {
+            flagEl.textContent = "🚩";
+            flagEl.className = "cell-flag blue-flag";
+          }
+        } else if (flagVal === 2) {
+          cell.classList.add("flag-p2");
+          if (flagEl) {
+            flagEl.textContent = "🚩";
+            flagEl.className = "cell-flag red-flag";
+          }
+        } else {
+          cell.classList.add("flag-neutral");
+          if (flagEl) {
+            flagEl.textContent = "🏳️";
+            flagEl.className = "cell-flag neutral-flag";
+          }
+        }
+      });
+    }
+
+    // 2. Update HUD progress track above arena
+    const trackEl = document.getElementById("flags-track");
+    if (trackEl) {
+      trackEl.innerHTML = "";
+      flags.forEach((f, idx) => {
+        const item = document.createElement("span");
+        item.className = "track-flag " + (f === 1 ? "flag-blue" : f === 2 ? "flag-red" : "flag-neutral");
+        item.textContent = f === 0 ? "🏳️" : "🚩";
+        item.title = `Flag ${idx + 1}: ` + (f === 1 ? "Blue Team (P1)" : f === 2 ? "Red Team (P2)" : "Neutral");
+        trackEl.appendChild(item);
+      });
+    }
+
+    // 3. Update team flag counters
+    const p1Count = flags.filter(f => f === 1).length;
+    const p2Count = flags.filter(f => f === 2).length;
+
+    const p1El = document.getElementById("p1-flags-count");
+    const p2El = document.getElementById("p2-flags-count");
+    if (p1El) p1El.textContent = p1Count;
+    if (p2El) p2El.textContent = p2Count;
   },
 
   /**

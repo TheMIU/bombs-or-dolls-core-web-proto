@@ -504,19 +504,80 @@ window.GameSystem = {
   },
 
   /**
-   * Trigger victory when a hiker steps on row 0
+   * Claim one of the 8 summit flags when a hiker reaches row 0
    */
-  triggerVictory(winningPlayer, hiker, isRemote = false) {
+  claimSummitFlag(player, hiker, isRemote = false, explicitFlagIdx = null) {
+    if (window.GameState.isGameOver) return;
+
+    const flags = window.GameState.flags;
+    let targetIdx = explicitFlagIdx;
+
+    if (targetIdx === null || targetIdx === undefined || targetIdx < 0 || targetIdx >= 8) {
+      // Prioritize the specific lane's flag if hiker reached that column on row 0
+      const flagCols = [0, 1, 2, 3, 5, 6, 7, 8];
+      const hikerCol = hiker ? hiker.x : -1;
+      const colSlot = flagCols.indexOf(hikerCol);
+
+      if (colSlot !== -1 && flags[colSlot] === 0) {
+        targetIdx = colSlot;
+      } else {
+        // Otherwise claim next available neutral flag
+        targetIdx = flags.findIndex(f => f === 0);
+      }
+    }
+
+    if (targetIdx === -1 || flags[targetIdx] !== 0) {
+      // If preferred slot is already taken, claim first remaining neutral flag
+      targetIdx = flags.findIndex(f => f === 0);
+    }
+
+    if (targetIdx === -1) return; // All 8 flags already claimed
+
+    flags[targetIdx] = player;
+
+    // Broadcast to peer if online
+    if (!isRemote && window.Network && window.Network.isOnline) {
+      window.Network.send({
+        type: "FLAG_CLAIM",
+        player: player,
+        hikerId: hiker?.id,
+        flagIdx: targetIdx
+      });
+    }
+
+    // Update flag visuals on row 0 and top HUD
+    window.ArenaRenderer.updateSummitFlagsUI();
+
+    const p1Count = flags.filter(f => f === 1).length;
+    const p2Count = flags.filter(f => f === 2).length;
+    const totalClaimed = p1Count + p2Count;
+
+    this.updateStatus(`🚩 ${player === 1 ? "Blue Team (P1)" : "Red Team (P2)"} claimed Flag ${totalClaimed}/8! (Blue: ${p1Count} - Red: ${p2Count})`);
+
+    // Match ends ONLY after all 8 flags are complete
+    if (totalClaimed >= 8) {
+      let winner = 0; // 0 = draw
+      if (p1Count > p2Count) winner = 1;
+      else if (p2Count > p1Count) winner = 2;
+
+      this.triggerSummitCompletion(winner, p1Count, p2Count);
+    }
+  },
+
+  /**
+   * Conclude match after all 8 flags are complete and announce the winner
+   */
+  triggerSummitCompletion(winner, p1Count, p2Count, isRemote = false) {
     window.GameState.isGameOver = true;
     window.GameState.isStarted = false;
-    window.GameState.winner = winningPlayer;
+    window.GameState.winner = winner;
 
-    // Broadcast victory to peer if this was determined locally
     if (!isRemote && window.Network && window.Network.isOnline) {
       window.Network.send({
         type: "VICTORY",
-        winner: winningPlayer,
-        hikerId: hiker?.id
+        winner: winner,
+        p1Count: p1Count,
+        p2Count: p2Count
       });
     }
 
@@ -529,13 +590,36 @@ window.GameSystem = {
     const title = document.getElementById("victory-title");
     const desc = document.getElementById("victory-desc");
 
-    trophy.textContent = winningPlayer === 1 ? "🏆" : "👑";
-    title.textContent = `PLAYER ${winningPlayer} REACHED THE PEAK!`;
-    title.className = `victory-title ${winningPlayer === 1 ? "p1-color" : "p2-color"}`;
-    desc.textContent = `Player ${winningPlayer}'s ${hiker?.card?.name || "Hiker"} conquered the Mountain Summit in ${Math.floor(window.GameState.matchTimeSec)} seconds!`;
+    const timeStr = Math.floor(window.GameState.matchTimeSec);
+
+    if (winner === 1) {
+      trophy.textContent = "🏆";
+      title.textContent = "PLAYER 1 (BLUE) WINS!";
+      title.className = "victory-title p1-color";
+      desc.textContent = `Player 1 captured ${p1Count} of 8 Summit Flags in ${timeStr}s! (Red: ${p2Count} Flags)`;
+      this.updateStatus(`🏆 PLAYER 1 WINS THE RACE FOR THE 8 FLAGS! (${p1Count} - ${p2Count})`);
+    } else if (winner === 2) {
+      trophy.textContent = "👑";
+      title.textContent = "PLAYER 2 (RED) WINS!";
+      title.className = "victory-title p2-color";
+      desc.textContent = `Player 2 captured ${p2Count} of 8 Summit Flags in ${timeStr}s! (Blue: ${p1Count} Flags)`;
+      this.updateStatus(`👑 PLAYER 2 WINS THE RACE FOR THE 8 FLAGS! (${p2Count} - ${p1Count})`);
+    } else {
+      trophy.textContent = "🤝";
+      title.textContent = "IT'S A DRAW!";
+      title.className = "victory-title";
+      desc.textContent = `Both teams captured 4 Summit Flags in an epic 4-4 tie! (${timeStr}s)`;
+      this.updateStatus(`🤝 SUMMIT TIE! 4 - 4 FLAGS!`);
+    }
 
     modal?.classList.add("open");
-    this.updateStatus(`🏆 PLAYER ${winningPlayer} WINS THE RACE TO THE PEAK!`);
+  },
+
+  /**
+   * Trigger victory fallback
+   */
+  triggerVictory(winningPlayer, hiker, isRemote = false) {
+    this.claimSummitFlag(winningPlayer, hiker, isRemote);
   },
 
   /**

@@ -28,6 +28,9 @@ window.GameState = {
   // AI Opponent disabled by default (game is tested with 2 human players on one screen)
   aiEnabled: false,
 
+  // 8 Summit Flags: 0 = neutral, 1 = Player 1 (Blue), 2 = Player 2 (Red)
+  flags: [0, 0, 0, 0, 0, 0, 0, 0],
+
   // Unique ID generator for entities
   _nextEntityId: 1,
   getNextId() {
@@ -50,6 +53,7 @@ window.GameState = {
     this.selectedCard = null;
     this.units = [];
     this.bombs = [];
+    this.flags = [0, 0, 0, 0, 0, 0, 0, 0];
   },
 
   /**

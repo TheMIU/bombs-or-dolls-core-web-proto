@@ -53,10 +53,12 @@ window.UnitSystem = {
       // 3. Movement / Climbing Step (Bottom to Top)
       this.handleMovement(u, dt);
 
-      // 4. Check Victory Peak Condition (Reached Row 0)
+      // 4. Check Summit Flag Capture (Reached Row 0)
       if (u.y <= peakRow) {
-        window.GameSystem.triggerVictory(u.player, u);
-        return;
+        window.GameSystem.claimSummitFlag(u.player, u);
+        u.hp = 0; // Climber successfully reaches top and finishes
+        window.ArenaRenderer.spawnCombatText(u.x, peakRow, "SUMMIT! 🚩", u.player === 1 ? "floating-stun" : "floating-dmg");
+        window.ArenaRenderer.spawnExplosion(u.x, peakRow, u.player === 1 ? "#38bdf8" : "#f43f5e");
       }
     }
 
