@@ -222,17 +222,19 @@
           <button id="btn-copy-link" class="btn btn-primary">📋 Copy Link</button>
         </div>
         <p class="lobby-hint">Send this link to Player 2. The match will connect automatically!</p>
+        <div id="host-status-msg" class="lobby-status-msg"></div>
       </div>
     </div>
 
     <!-- Join Match Panel -->
     <div id="panel-join" class="lobby-panel hidden">
-      <p class="lobby-desc">Enter the Room Code given to you by the Host:</p>
+      <p class="lobby-desc">Enter the Room Code or paste the link given by the Host:</p>
       <div class="join-input-group">
-        <input id="input-join-code" type="text" placeholder="e.g. BOD-7K92" maxlength="12" />
+        <input id="input-join-code" type="text" placeholder="e.g. BOD-7K92" maxlength="40" />
         <button id="btn-join-room" class="btn btn-primary">Join Match</button>
       </div>
       <p class="lobby-hint">You will join as Player 2 (Red Team).</p>
+      <div id="join-status-msg" class="lobby-status-msg"></div>
     </div>
 
     <div class="lobby-footer">

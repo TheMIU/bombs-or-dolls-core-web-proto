@@ -90,9 +90,19 @@ window.GameSystem = {
     });
 
     // Join room
-    document.getElementById("btn-join-room")?.addEventListener("click", () => {
-      const code = document.getElementById("input-join-code")?.value;
-      if (code) window.Network.joinRoom(code);
+    const joinBtn = document.getElementById("btn-join-room");
+    const joinInput = document.getElementById("input-join-code");
+
+    joinBtn?.addEventListener("click", () => {
+      const code = joinInput?.value;
+      window.Network.joinRoom(code);
+    });
+
+    joinInput?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        joinBtn?.click();
+      }
     });
 
     // Copy room link
