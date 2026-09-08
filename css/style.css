@@ -301,6 +301,29 @@ html, body {
   justify-content: center;
 }
 
+/* Tiny testing cell number */
+.cell-num {
+  position: absolute;
+  top: 1px;
+  left: 2px;
+  font-size: 7.5px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 700;
+  color: rgba(107, 114, 128, 0.45);
+  pointer-events: none;
+  user-select: none;
+  line-height: 1;
+  z-index: 2;
+}
+
+.cell.peak .cell-num {
+  color: rgba(161, 98, 7, 0.6);
+}
+
+.cell.deployarea .cell-num {
+  color: rgba(99, 102, 241, 0.5);
+}
+
 /* Zone colors */
 .cell.peak {
   background: linear-gradient(180deg, #fef08a 0%, #fde047 100%) !important;
@@ -631,3 +654,329 @@ html, body {
     grid-template-columns: repeat(4, 1fr);
   }
 }
+
+/* ================= Online Multiplayer Lobby Styles ================= */
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.net-status-pill {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #4b5563;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.net-status-pill.connected {
+  background: #ecfdf5;
+  color: #047857;
+  border-color: #a7f3d0;
+}
+
+.net-status-pill.waiting {
+  background: #fefce8;
+  color: #a16207;
+  border-color: #fef08a;
+  animation: pulse-waiting 1s infinite alternate;
+}
+
+@keyframes pulse-waiting {
+  from { opacity: 0.8; }
+  to { opacity: 1; }
+}
+
+.net-status-pill.error {
+  background: #fef2f2;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+
+.btn-online {
+  background: #4f46e5;
+  color: #ffffff;
+  border-color: #4338ca;
+}
+.btn-online:hover {
+  background: #4338ca;
+}
+
+.lobby-card {
+  max-width: 460px;
+  text-align: left;
+  padding: 24px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 22px;
+  font-weight: 700;
+  color: #9ca3af;
+  cursor: pointer;
+}
+.modal-close:hover {
+  color: #111827;
+}
+
+.lobby-tabs {
+  display: flex;
+  gap: 6px;
+  border-bottom: 2px solid #f3f4f6;
+  margin-bottom: 18px;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #6b7280;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.15s;
+}
+
+.tab-btn.active {
+  color: #4f46e5;
+  border-bottom-color: #4f46e5;
+}
+
+.lobby-panel.hidden {
+  display: none;
+}
+
+.lobby-desc {
+  font-size: 13px;
+  color: #4b5563;
+  margin-bottom: 14px;
+  line-height: 1.4;
+}
+
+.host-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.room-code-box {
+  background: #f8fafc;
+  border: 2px dashed #cbd5e1;
+  border-radius: 10px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.room-code-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.room-code-display {
+  font-family: "Courier New", monospace;
+  font-size: 24px;
+  font-weight: 900;
+  color: #0f172a;
+  letter-spacing: 2px;
+}
+
+.share-link-box, .join-input-group {
+  display: flex;
+  gap: 8px;
+}
+
+.share-link-box input, .join-input-group input {
+  flex: 1;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #374151;
+  background: #f9fafb;
+}
+
+.share-link-box input:focus, .join-input-group input:focus {
+  outline: none;
+  border-color: #4f46e5;
+  background: #ffffff;
+}
+
+.lobby-hint {
+  font-size: 11px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.lobby-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px solid #f3f4f6;
+}
+
+/* Opponent Hand in Online Mode */
+.card.opponent-card {
+  opacity: 0.35 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  filter: grayscale(0.7) !important;
+}
+
+/* ================= Settings & Configs Modal Styles ================= */
+.hidden {
+  display: none !important;
+}
+
+.settings-card {
+  max-width: 500px;
+  text-align: left;
+  padding: 24px;
+}
+
+.settings-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 65vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.settings-section {
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 14px;
+}
+.settings-section:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.settings-label {
+  font-size: 13px;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.settings-desc {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.settings-select, .settings-input {
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  font-size: 13px;
+  background: #ffffff;
+  color: #1e293b;
+}
+
+.settings-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.sub-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #475569;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.cards-cost-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.cost-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f8fafc;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.cost-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.cost-input {
+  width: 54px !important;
+  text-align: center;
+  font-weight: 800;
+  padding: 4px 6px;
+}
+
+.btn-settings {
+  background: #f1f5f9;
+  color: #334155;
+  border-color: #cbd5e1;
+}
+.btn-settings:hover {
+  background: #e2e8f0;
+}
+
+.btn-start {
+  background: #10b981;
+  color: #ffffff;
+  border-color: #059669;
+  box-shadow: 0 1px 3px rgba(16, 185, 129, 0.3);
+}
+.btn-start:hover {
+  background: #059669;
+  border-color: #047857;
+  color: #ffffff;
+}
+
+.btn-stop {
+  background: #ef4444;
+  color: #ffffff;
+  border-color: #dc2626;
+  box-shadow: 0 1px 3px rgba(239, 68, 68, 0.3);
+}
+.btn-stop:hover {
+  background: #dc2626;
+  border-color: #b91c1c;
+  color: #ffffff;
+}
+
+

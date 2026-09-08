@@ -4,6 +4,7 @@
 
 window.GameState = {
   // Game running flags
+  isStarted: false,
   isPaused: false,
   isGameOver: false,
   winner: null,
@@ -37,6 +38,7 @@ window.GameState = {
    * Reset game to fresh initial state
    */
   reset() {
+    this.isStarted = false;
     this.isPaused = false;
     this.isGameOver = false;
     this.winner = null;

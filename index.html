@@ -35,7 +35,10 @@
         <span>⛰️</span>
         <span>Bombs or Dolls</span>
       </div>
-      <div id="game-timer" class="game-timer">⏱️ 00:00</div>
+      <div class="top-bar-right">
+        <div id="net-status-pill" class="net-status-pill offline">👥 2-Player Local</div>
+        <div id="game-timer" class="game-timer">⏱️ 00:00</div>
+      </div>
     </div>
 
     <div id="arena-container">
@@ -48,9 +51,13 @@
     <div id="status" class="status">Loading battle arena...</div>
 
     <div class="controls-row">
+      <button id="btn-settings" class="btn btn-settings">⚙️ Settings</button>
+      <button id="btn-online" class="btn btn-online">🌐 Play Online</button>
+      <button id="btn-start" class="btn btn-start">▶ Start Match</button>
+      <button id="btn-stop" class="btn btn-stop hidden">⏹ Stop Match</button>
       <button id="btn-reset" class="btn">🔄 Reset</button>
-      <button id="btn-pause" class="btn">⏸ Pause</button>
-      <button id="btn-ai" class="btn" title="Toggle AI Bot if testing solo">👥 2-Player Local (Bot: OFF)</button>
+      <button id="btn-pause" class="btn hidden">⏸ Pause</button>
+      <button id="btn-ai" class="btn" title="Toggle AI Bot if testing solo">🤖 Bot: OFF</button>
     </div>
 
     <div class="hint-bar">
@@ -78,6 +85,148 @@
   </section>
 </div>
 
+<!-- Settings & Configs Modal -->
+<div id="settings-modal" class="modal-overlay">
+  <div class="modal-card settings-card">
+    <div class="modal-header">
+      <h2 class="modal-title">⚙️ Game Balance & Configs</h2>
+      <button class="modal-close btn-close-settings" id="btn-close-settings-x">&times;</button>
+    </div>
+
+    <div class="settings-body">
+      <!-- Section 1: Movement Speed -->
+      <div class="settings-section">
+        <label class="settings-label">🏃 Overall Climb Speed</label>
+        <select id="cfg-speed" class="settings-select">
+          <option value="0.7">Slow & Deliberate (0.7x)</option>
+          <option value="1.0" selected>Normal Strategic (1.0x - Default)</option>
+          <option value="1.4">Fast Action (1.4x)</option>
+          <option value="1.8">Turbo Rush (1.8x)</option>
+        </select>
+        <div class="settings-desc">Controls how fast all hikers take climbing steps up the mountain.</div>
+      </div>
+
+      <!-- Section 2: Mana Parameters -->
+      <div class="settings-section">
+        <label class="settings-label">⚡ Mana Economy</label>
+        <div class="settings-row-2">
+          <div class="setting-item">
+            <span class="sub-label">Starting Mana (1-10)</span>
+            <input id="cfg-start-mana" type="number" min="1" max="10" value="10" class="settings-input" />
+          </div>
+          <div class="setting-item">
+            <span class="sub-label">Refill Speed</span>
+            <select id="cfg-regen-rate" class="settings-select">
+              <option value="0.2">Glacial (~5.0s / pt)</option>
+              <option value="0.35" selected>Slow Tactical (~2.8s / pt - Default)</option>
+              <option value="0.55">Moderate (~1.8s / pt)</option>
+              <option value="0.9">Rapid (~1.1s / pt)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Card Mana Costs -->
+      <div class="settings-section">
+        <label class="settings-label">🃏 Individual Card Mana Costs</label>
+        <div class="cards-cost-grid">
+          <div class="cost-item">
+            <span class="cost-name">🏃 Small Hiker</span>
+            <input id="cfg-cost-small" type="number" min="1" max="10" value="3" class="settings-input cost-input" />
+          </div>
+          <div class="cost-item">
+            <span class="cost-name">🗿 Sumo Hiker</span>
+            <input id="cfg-cost-sumo" type="number" min="1" max="10" value="6" class="settings-input cost-input" />
+          </div>
+          <div class="cost-item">
+            <span class="cost-name">⚔️ Attack Hiker</span>
+            <input id="cfg-cost-attack" type="number" min="1" max="10" value="5" class="settings-input cost-input" />
+          </div>
+          <div class="cost-item">
+            <span class="cost-name">❤️ Doctor Hiker</span>
+            <input id="cfg-cost-doctor" type="number" min="1" max="10" value="5" class="settings-input cost-input" />
+          </div>
+          <div class="cost-item">
+            <span class="cost-name">💣 Instant Kill</span>
+            <input id="cfg-cost-instant" type="number" min="1" max="10" value="6" class="settings-input cost-input" />
+          </div>
+          <div class="cost-item">
+            <span class="cost-name">⏱️ Timer Bomb</span>
+            <input id="cfg-cost-timer" type="number" min="1" max="10" value="4" class="settings-input cost-input" />
+          </div>
+          <div class="cost-item">
+            <span class="cost-name">💥 Area Bomb</span>
+            <input id="cfg-cost-area" type="number" min="1" max="10" value="5" class="settings-input cost-input" />
+          </div>
+          <div class="cost-item">
+            <span class="cost-name">⚡ Shock Bomb</span>
+            <input id="cfg-cost-shock" type="number" min="1" max="10" value="4" class="settings-input cost-input" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lobby-footer">
+      <button id="btn-reset-defaults" class="btn" style="font-size: 11px;">↺ Reset Defaults</button>
+      <div style="display: flex; gap: 8px;">
+        <button class="btn btn-close-settings">Cancel</button>
+        <button id="btn-save-settings" class="btn btn-primary">💾 Save & Apply</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Online Multiplayer Lobby Modal -->
+<div id="online-modal" class="modal-overlay">
+  <div class="modal-card lobby-card">
+    <div class="modal-header">
+      <h2 class="modal-title">🌐 Play Online (2 Players)</h2>
+      <button class="modal-close btn-close-online" id="btn-close-lobby-x">&times;</button>
+    </div>
+
+    <div class="lobby-tabs">
+      <button id="tab-host" class="tab-btn active">Host Match (P1)</button>
+      <button id="tab-join" class="tab-btn">Join Match (P2)</button>
+    </div>
+
+    <!-- Host Match Panel -->
+    <div id="panel-host" class="lobby-panel">
+      <p class="lobby-desc">Create a private game room and share the link with a friend:</p>
+      <button id="btn-create-room" class="btn btn-primary" style="padding: 9px 18px; margin-bottom: 12px;">
+        🎲 Generate Room Code
+      </button>
+
+      <div class="host-details">
+        <div class="room-code-box">
+          <span class="room-code-label">Room Code:</span>
+          <span id="host-room-code" class="room-code-display">----</span>
+        </div>
+
+        <div class="share-link-box">
+          <input id="host-room-link" type="text" readonly placeholder="Room link will appear here..." />
+          <button id="btn-copy-link" class="btn btn-primary">📋 Copy Link</button>
+        </div>
+        <p class="lobby-hint">Send this link to Player 2. The match will connect automatically!</p>
+      </div>
+    </div>
+
+    <!-- Join Match Panel -->
+    <div id="panel-join" class="lobby-panel hidden">
+      <p class="lobby-desc">Enter the Room Code given to you by the Host:</p>
+      <div class="join-input-group">
+        <input id="input-join-code" type="text" placeholder="e.g. BOD-7K92" maxlength="12" />
+        <button id="btn-join-room" class="btn btn-primary">Join Match</button>
+      </div>
+      <p class="lobby-hint">You will join as Player 2 (Red Team).</p>
+    </div>
+
+    <div class="lobby-footer">
+      <button id="btn-disconnect-net" class="btn" style="font-size: 11px;">Disconnect / Local Mode</button>
+      <button class="btn btn-close-online">Close</button>
+    </div>
+  </div>
+</div>
+
 <!-- Victory Modal -->
 <div id="victory-modal" class="modal-overlay">
   <div class="modal-card">
@@ -89,6 +238,9 @@
     </button>
   </div>
 </div>
+
+<!-- PeerJS WebRTC Library (CDN) -->
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 
 <!-- Modular Architecture Scripts -->
 <!-- 1. Configuration & Unit Stats -->
@@ -105,7 +257,9 @@
 <script src="js/arena.js"></script>
 <!-- 7. AI Opponent (for Solo play / testing) -->
 <script src="js/ai.js"></script>
-<!-- 8. Game Engine Loop & UI Binding -->
+<!-- 8. Online Peer-to-Peer Network Manager (WebRTC) -->
+<script src="js/network.js"></script>
+<!-- 9. Game Engine Loop & UI Binding -->
 <script src="js/game.js"></script>
 
 </body>
