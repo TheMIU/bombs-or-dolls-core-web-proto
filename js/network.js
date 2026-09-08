@@ -31,6 +31,7 @@ window.Network = {
   getPeerConfig() {
     return {
       debug: 1,
+      pingInterval: 5000,
       config: {
         iceServers: [
           { urls: "stun:stun.l.google.com:19302" },
@@ -104,6 +105,21 @@ window.Network = {
         this.openLobbyModal(code);
       }, 300);
     }
+
+    // Auto-reconnect host when returning to the browser tab (mobile app switching / screen lock)
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        if (this.isHost && this.peer && this.peer.disconnected && !this.peer.destroyed && !this.isOnline) {
+          console.log("[Net] 📱 Host tab became active again. Reconnecting to signaling cloud...");
+          try {
+            this.peer.reconnect();
+            this.updateHostStatus("🟢 Connected! Ready for friend to join.", "waiting");
+          } catch (e) {
+            console.warn("[Net] Foreground reconnect failed:", e);
+          }
+        }
+      }
+    });
   },
 
   /**
@@ -286,7 +302,15 @@ window.Network = {
 
         if (err.type === "peer-unavailable") {
           this.updateStatusUI(`Room ${cleanCode} not found`, "error");
-          this.updateJoinStatus(`Room "${cleanCode}" was not found. Make sure Host has created the room first and is still waiting!`, "error");
+          this.updateJoinStatus(
+            `⚠️ <strong>Room "${cleanCode}" was not found on the signaling server.</strong><br>` +
+            `<div style="margin-top:6px; font-size:12px; line-height:1.4; text-align:left; opacity:0.95;">` +
+            `• Ensure Host has clicked <strong>Host Match</strong> and is still on the waiting screen.<br>` +
+            `• If Host refreshed the page or switched tabs on mobile, a new code was generated.<br>` +
+            `• Confirm with the Host that "${cleanCode}" is their active code.` +
+            `</div>`,
+            "error"
+          );
         } else if (err.type === "network" || err.type === "server-error" || err.type === "socket-error") {
           this.updateStatusUI("Signaling network error", "error");
           this.updateJoinStatus("Cannot reach PeerJS signaling server. Check your internet connection.", "error");
@@ -612,11 +636,11 @@ window.Network = {
     if (!el) return;
     if (!text) {
       el.className = "lobby-status-msg";
-      el.textContent = "";
+      el.innerHTML = "";
       return;
     }
     el.className = `lobby-status-msg active ${type}`;
-    el.textContent = text;
+    el.innerHTML = text;
   },
 
   updateJoinStatus(text, type = "info") {
@@ -624,11 +648,11 @@ window.Network = {
     if (!el) return;
     if (!text) {
       el.className = "lobby-status-msg";
-      el.textContent = "";
+      el.innerHTML = "";
       return;
     }
     el.className = `lobby-status-msg active ${type}`;
-    el.textContent = text;
+    el.innerHTML = text;
   },
 
   openLobbyModal(prefillCode = "") {
