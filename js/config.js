@@ -93,7 +93,7 @@ window.GameConfig = {
       maxHp: 110,
       stepIntervalSec: 5.0,
       isBlocker: true,
-      description: "Huge health pool. Blocks enemy hikers from passing."
+      description: "Huge 110 HP pool with Heavy Armor. Cannot be eliminated by a single bomb shot."
     },
     {
       id: "attack",
@@ -131,7 +131,8 @@ window.GameConfig = {
       name: "Instant Kill",
       role: "Target Slayer",
       cost: 6,
-      description: "Instantly destroys an enemy hiker at the targeted cell."
+      damage: 80,
+      description: "Direct targeted strike dealing 80 damage. Instantly destroys normal hikers (Sumo survives with tank armor)."
     },
     {
       id: "timer",

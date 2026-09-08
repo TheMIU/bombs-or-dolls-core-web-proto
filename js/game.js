@@ -240,11 +240,25 @@ window.GameSystem = {
           ? window.Sprites.getHiker(card.id, p)
           : window.Sprites.getBomb(card.id, p);
 
+        let statBadge = "";
+        if (card.kind === "hiker") {
+          statBadge = `<span class="card-stat card-stat-hp" title="Health: ${card.hp} HP">❤️ ${card.hp} HP</span>`;
+        } else if (card.kind === "bomb") {
+          if (typeof card.damage === "number" && card.damage > 0) {
+            statBadge = `<span class="card-stat card-stat-dmg" title="Blast Damage: ${card.damage} DMG">💥 ${card.damage} DMG</span>`;
+          } else if (card.stunDurationSec) {
+            statBadge = `<span class="card-stat card-stat-stun" title="Stun: ${card.stunDurationSec}s">⚡ ${card.stunDurationSec}s</span>`;
+          }
+        }
+
         cardEl.innerHTML = `
+          <div class="card-header-row">
+            <span class="card-cost">${card.cost}⚡</span>
+            ${statBadge}
+          </div>
           <div class="card-icon">${spriteSvg}</div>
           <div class="card-name">${card.name}</div>
           <div class="card-footer">
-            <span class="card-cost">${card.cost}⚡</span>
             <span class="card-role">${card.role}</span>
           </div>
         `;

@@ -136,11 +136,11 @@ html, body {
 }
 
 .card {
-  height: 98px;
+  height: 104px;
   background: #ffffff;
   border: 2px solid #e5e7eb;
   border-radius: 10px;
-  padding: 8px 6px;
+  padding: 6px 6px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -171,13 +171,68 @@ html, body {
   filter: grayscale(0.6);
 }
 
+.card-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 1px;
+}
+
+.card-cost {
+  font-size: 10px;
+  font-weight: 800;
+  color: #0284c7;
+  background: #f0f9ff;
+  padding: 1px 5px;
+  border-radius: 4px;
+  border: 1px solid #bae6fd;
+  line-height: 1.2;
+}
+
+.p2-panel .card-cost {
+  color: #e11d48;
+  background: #fff1f2;
+  border-color: #fecdd3;
+}
+
+.card-stat {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.card-stat-hp {
+  color: #15803d;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+}
+
+.card-stat-dmg {
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+}
+
+.card-stat-stun {
+  color: #0369a1;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+}
+
 .card-icon {
-  width: 42px;
-  height: 42px;
+  width: 38px;
+  height: 38px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 2px;
+  margin: 1px 0;
 }
 
 .sprite-svg {
@@ -191,37 +246,24 @@ html, body {
   font-size: 11px;
   text-align: center;
   color: #1f2937;
-  line-height: 1.2;
+  line-height: 1.1;
+  white-space: nowrap;
 }
 
 .card-footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   width: 100%;
-  padding: 0 4px;
-}
-
-.card-cost {
-  font-size: 10px;
-  font-weight: 800;
-  color: #0284c7;
-  background: #f0f9ff;
-  padding: 1px 5px;
-  border-radius: 4px;
-  border: 1px solid #bae6fd;
-}
-
-.p2-panel .card-cost {
-  color: #e11d48;
-  background: #fff1f2;
-  border-color: #fecdd3;
+  padding: 0 2px;
 }
 
 .card-role {
-  font-size: 9px;
+  font-size: 8.5px;
   font-weight: 600;
   color: #6b7280;
+  text-align: center;
+  white-space: nowrap;
 }
 
 /* ================= Middle Arena Panel ================= */

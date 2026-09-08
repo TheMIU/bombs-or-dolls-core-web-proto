@@ -59,12 +59,22 @@ window.BombSystem = {
     window.ArenaRenderer.spawnExplosion(bomb.x, bomb.y, cardId === "shock" ? "#38bdf8" : "#f97316");
 
     if (cardId === "instant") {
-      // Direct elimination of enemy unit on cell
+      // Direct high-damage strike on target cell
       const target = state.getUnitAt(bomb.x, bomb.y);
       if (target && target.player !== bomb.player) {
-        target.hp = 0;
-        window.ArenaRenderer.spawnCombatText(bomb.x, bomb.y, "KILL! 💀", "floating-dmg");
-        window.ArenaRenderer.shakeCell(bomb.x, bomb.y);
+        const dmg = bomb.card.damage || 80;
+        if (target.card.id === "sumo") {
+          // Sumo Tank Armor: cannot be killed by a single bomb shot!
+          const actualDmg = Math.min(dmg, Math.max(1, target.hp - 20));
+          target.hp -= actualDmg;
+          window.ArenaRenderer.spawnCombatText(bomb.x, bomb.y, `-${actualDmg} (SUMO TANK!)`, "floating-dmg");
+          window.ArenaRenderer.shakeCell(bomb.x, bomb.y);
+        } else {
+          // Destroys normal hikers (Small, Doctor, Attack)
+          target.hp = 0;
+          window.ArenaRenderer.spawnCombatText(bomb.x, bomb.y, "KILL! 💀", "floating-dmg");
+          window.ArenaRenderer.shakeCell(bomb.x, bomb.y);
+        }
       } else {
         window.ArenaRenderer.spawnCombatText(bomb.x, bomb.y, "MISS", "floating-dmg");
       }
@@ -75,8 +85,13 @@ window.BombSystem = {
         .filter(u => u.player !== bomb.player);
 
       targets.forEach(u => {
-        u.hp -= bomb.card.damage;
-        window.ArenaRenderer.spawnCombatText(u.x, u.y, `-${bomb.card.damage}`, "floating-dmg");
+        let dmg = bomb.card.damage;
+        if (u.card.id === "sumo" && u.hp === u.maxHp && dmg >= u.hp) {
+          dmg = u.hp - 20; // Sumo survives one-shot bomb
+        }
+        u.hp -= dmg;
+        const msg = (u.card.id === "sumo" && u.hp > 0) ? `-${dmg} (SUMO TANK!)` : `-${dmg}`;
+        window.ArenaRenderer.spawnCombatText(u.x, u.y, msg, "floating-dmg");
         window.ArenaRenderer.shakeCell(u.x, u.y);
       });
       window.ArenaRenderer.spawnCombatText(bomb.x, bomb.y, "BOOM! 💥", "floating-dmg");
@@ -87,8 +102,13 @@ window.BombSystem = {
         .filter(u => u.player !== bomb.player);
 
       targets.forEach(u => {
-        u.hp -= bomb.card.damage;
-        window.ArenaRenderer.spawnCombatText(u.x, u.y, `-${bomb.card.damage}`, "floating-dmg");
+        let dmg = bomb.card.damage;
+        if (u.card.id === "sumo" && u.hp === u.maxHp && dmg >= u.hp) {
+          dmg = u.hp - 20;
+        }
+        u.hp -= dmg;
+        const msg = (u.card.id === "sumo" && u.hp > 0) ? `-${dmg} (SUMO TANK!)` : `-${dmg}`;
+        window.ArenaRenderer.spawnCombatText(u.x, u.y, msg, "floating-dmg");
       });
     }
     else if (cardId === "shock") {
